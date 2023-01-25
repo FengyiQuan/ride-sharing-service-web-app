@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+This is home.
+<a href="/user/login/">Login</a>
+    {% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}. Thanks for logging in.</p>
+    <form action="/user/logout/" method="POST">
+        {% csrf_token %}
+        <button type="submit">Log Out</button>
+    </form>
+    {% else %}
+    <p>Welcome, new user. Please log in.</p>
+    {% endif %}
+
+
+</div>
+{% endblock content %}
