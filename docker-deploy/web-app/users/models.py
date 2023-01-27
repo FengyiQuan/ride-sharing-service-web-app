@@ -1,10 +1,4 @@
 from django.db import models
-import django.utils.timezone
-# Create your models here.
-
-# from django.contrib.auth.models import User
-from datetime import datetime
-
 from django.contrib.auth.models import AbstractUser
 
 
@@ -20,3 +14,7 @@ class Driver(models.Model):
     special_info = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        # destination = SharedRequest.objects.get(pk=id)
+        return str(self.user)

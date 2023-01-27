@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<table class="table table-striped" id="ride-table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Destination</th>
+        <th scope="col">Arrive Time</th>
+        <th scope="col">#Current Passengers</th>
+        <th scope="col">Status</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for ride in ride_list %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ride.destination}}</td>
+        <td>{{ride.arrive_time}}</td>
+        <td>{{ride.current_passengers_num}}</td>
+        <td>{{ride.status}}</td>
+    </tr>
+    {% empty %}
+    <li>Sorry, no rides information in this list.</li>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content %}

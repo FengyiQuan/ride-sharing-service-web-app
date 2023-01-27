@@ -10,6 +10,10 @@ This is home.
         {% csrf_token %}
         <button type="submit">Log Out</button>
     </form>
+    <button><a href="/admin/">Admin</a></button>
+    <button><a href="/request_ride/">request_ride</a></button>
+    <button><a href="/rides/">rides list</a></button>
+    <button><a href="/user/register_driver/">register_driver</a></button>
     {% else %}
     <p>Welcome, new user. Please log in.</p>
     {% endif %}

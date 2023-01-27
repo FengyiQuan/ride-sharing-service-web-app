@@ -13,16 +13,20 @@ class Ride(models.Model):
     id = models.AutoField(primary_key=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     driver = models.ForeignKey(Driver, default=None, on_delete=models.CASCADE, null=True)
-    destination = models.TextField(max_length=512)
+    destination = models.CharField(max_length=512)
     arrive_time = models.DateTimeField()
     current_passengers_num = models.IntegerField(default=1)
-    vehicle_type = models.TextField(max_length=128, null=True)
-    other_request = models.TextField()
+    # available_capacity = models.IntegerField(default=1)
+    vehicle_type = models.CharField(max_length=128, null=True)
+    special_request = models.TextField()
     status = models.CharField(default=RideStatus.OPEN, max_length=10,
                               choices=RideStatus.choices)  # OPEN, CANCELLED, CLOSE, CONFIRMED
     can_be_shared = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.destination
 
 
 class SharedRequest(models.Model):
@@ -34,3 +38,7 @@ class SharedRequest(models.Model):
     required_passengers_num = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        # destination = SharedRequest.objects.get(pk=id)
+        return f"{self.required_passengers_num} shared {self.ride_id}"
