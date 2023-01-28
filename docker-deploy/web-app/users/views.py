@@ -4,7 +4,8 @@ from django.http import HttpRequest
 from django.contrib.auth import logout
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib.auth.decorators import login_required
-from .models import User, Driver
+from .models import User
+from drivers.models import Driver
 from .forms import RegisterUserForm, RegisterDriverForm
 
 
@@ -60,7 +61,7 @@ def register_driver(request: HttpRequest):
             has_error = True
 
         form_data = form.cleaned_data
-        print(form_data)
+        # print(form_data)
         vehicle_type = form_data.get('vehicle_type')
         plate_num = form_data.get('plate_num')
         max_capacity = form_data.get('max_capacity')

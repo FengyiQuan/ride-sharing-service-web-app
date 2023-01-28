@@ -3,9 +3,11 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from .forms import RequestRideForm
 from django.contrib import messages
 from .models import Ride
+from .filters import RideFilter
 
 
 # Create your views here.
@@ -61,3 +63,15 @@ def request_ride(request: HttpRequest):
 def ride_list(request: HttpRequest):
     rides = Ride.objects.all()
     return render(request, 'ride_list.html', {'ride_list': rides, })
+
+
+def show_all_ride_list(request: HttpRequest):
+    context = {}
+    filtered_rides = RideFilter(request.GET, queryset=Ride.objects.all())
+    context['filtered_rides'] = filtered_rides
+    entry_number_per_page = 1
+    paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
+    page_number = request.GET.get('page')
+    rides_page_obj = paginated_filtered_rides.get_page(page_number)
+    context['rides_page_obj'] = rides_page_obj
+    return render(request, 'ride_list.html', context)
