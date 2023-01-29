@@ -4,6 +4,17 @@ from users.models import User
 from drivers.models import Driver
 from django.utils.translation import gettext_lazy as _
 import json
+from django.core.exceptions import ValidationError
+
+
+def validate_arrive_time_from_to(from_time, to_time, return_from: bool):
+    if from_time > to_time:
+        raise ValidationError('from time should be before to time')
+    else:
+        if return_from:
+            return from_time
+        else:
+            return to_time
 
 
 class Ride(models.Model):
@@ -47,6 +58,10 @@ class SharedRequest(models.Model):
     def __str__(self):
         # destination = SharedRequest.objects.get(pk=id)
         return f"{self.required_passengers_num} shared {self.ride_id}"
+
+    def clean(self):
+        if self.earliest_arrive_date > self.latest_arrive_date:
+            raise ValidationError('from time should be before to time')
     #
     # def to_json(self):
     #     return json.dumps(self, default=lambda o: o.__dict__)

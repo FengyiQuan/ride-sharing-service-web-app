@@ -13,6 +13,8 @@ from django.forms.models import model_to_dict
 
 
 # Create your views here.
+entry_number_per_page = 5
+
 
 @require_GET
 def home(request: HttpRequest):
@@ -71,7 +73,22 @@ def show_all_ride_list(request: HttpRequest):
     context = {}
     filtered_rides = RideFilter(request.GET, queryset=Ride.objects.all())
     context['filtered_rides'] = filtered_rides
-    entry_number_per_page = 5
+
+    paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
+    page_number = request.GET.get('page')
+    rides_page_obj = paginated_filtered_rides.get_page(page_number)
+    context['rides_page_obj'] = rides_page_obj
+    return render(request, 'ride_list.html', context)
+
+
+@require_GET
+@login_required
+def user_ride_list(request: HttpRequest):
+    context = {}
+    filtered_rides = RideFilter(request.GET,
+                                queryset=Ride.objects.filter(can_be_shared=True, status=Ride.RideStatus.OPEN).exclude(
+                                    owner=request.user))
+    context['filtered_rides'] = filtered_rides
     paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
     page_number = request.GET.get('page')
     rides_page_obj = paginated_filtered_rides.get_page(page_number)
@@ -84,18 +101,18 @@ def show_all_ride_list(request: HttpRequest):
 def create_shared_request(request: HttpRequest):
     form = RideShareRequestForm(request.POST)
 
-    for keys, values in request.POST.items():
-        print(keys)
-        print(values)
-    print(form.is_valid())
+    # for keys, values in request.POST.items():
+    #     print(keys)
+    #     print(values)
+    # print(form.is_valid())
 
     if form.is_valid():
         form_data = form.cleaned_data
         sharer = request.user
         ride_id = form_data.get('ride_id')
-        print('ride_id:', ride_id)
+        # print('ride_id:', ride_id)
         ride = Ride.objects.get(id=ride_id, can_be_shared=True, status=Ride.RideStatus.OPEN)
-        print(ride)
+        # print(ride)
         if not ride:
             return JsonResponse({'error': 'no such ride or ride cannot be shareds'})
         earliest_arrive_date = form_data.get('earliest_arrive_date')
