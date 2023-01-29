@@ -78,9 +78,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ride-app',
         'USER': 'postgres',
-        'PASSWORD': 'ruqiulixia0220',
+        'PASSWORD': 'wadqq',
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
