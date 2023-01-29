@@ -4,8 +4,10 @@ from django.http import HttpRequest
 from django.contrib.auth import logout
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib.auth.decorators import login_required
-from .models import User, Driver
-from .forms import RegisterUserForm, RegisterDriverForm
+from .models import User
+from drivers.models import Driver
+from .forms import RegisterUserForm, RegisterDriverForm, userDriverProfileForm, driverUserEditProfileForm, \
+    userEditProfileForm
 
 
 @require_POST
@@ -60,7 +62,7 @@ def register_driver(request: HttpRequest):
             has_error = True
 
         form_data = form.cleaned_data
-        print(form_data)
+        # print(form_data)
         vehicle_type = form_data.get('vehicle_type')
         plate_num = form_data.get('plate_num')
         max_capacity = form_data.get('max_capacity')
@@ -85,3 +87,76 @@ def register_driver(request: HttpRequest):
             return redirect('/')
     else:
         return render(request, 'register_driver.html')
+# R6
+# Get /driverInfo
+@require_http_methods(["GET", "POST"])
+@login_required
+def viewUserInfo(request: HttpRequest):
+    curUser = request.user
+    #TODO what is driver status here?
+
+    # status  = 'undefined'
+    # curUserInfo = User.objects.get(user = curUser)
+    # username = curUserInfo.username
+    # lastname = curUserInfo.lastname
+    # firstname = curUserInfo.firstname
+    # email = curUserInfo.email
+    # # get vehicle info
+    # driver = Driver.objects.get(user=curUser)
+    # vehicle_type = driver.vehicle_type
+    # max_capacity = driver.max_capacity
+    # plate_num = driver.plate_num
+    # special_info = driver.special_info
+    data = User.objects.get(user = curUser)
+    context = {
+        'user_data': data,
+    }
+    return render(request, 'profile.html', context)
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def editUserInfo(request: HttpRequest):
+    if request.user.is_driver:
+        form = userEditProfileForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, form.errors)
+        has_error = True
+    # form_data = form.cleaned_data
+    username = form.get('username')
+    email = form.get('email')
+    lastname = form.get('lastname')
+    firstname = form.get('firstname')
+    curUser = request.user
+    User.objects.filter(user=curUser).update(username=username,
+                                             email=email,
+                                             lastname=lastname,
+                                             firstname=firstname,)
+    messages.success(request, f'Hi {curUser.get_short_name()}, your information have been changed.')
+    return redirect('/profile')
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def viewDriverInfo(request: HttpRequest):
+    curUser = request.user
+    driver_data = Driver.objects.get(user=curUser)
+    context = {
+        'driver_data': driver_data,
+    }
+    return render(request, 'driver_profile.html', context)
+@require_http_methods(["GET", "POST"])
+@login_required
+def editDriverInfo(request: HttpRequest):
+    if request.user.is_driver:
+        form = driverUserEditProfileForm(request.POST)
+
+        vehicle_type = form.get('vehicle_type')
+        max_capacity = form.get('max_capacity')
+        plate_num = form.get('plate_num')
+
+        Driver.objects.filter(user=request.user).update(vehicle_type=vehicle_type,
+                                                        max_capacity=max_capacity,
+                                                        plate_num=plate_num)
+
+        messages.success(request, f'Hi {request.user.get_short_name()}, your profile has been changed. ')
+        return redirect('/driverprofile')

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from users.models import User, Driver
+from users.models import User
+from drivers.models import Driver
 from django.utils.translation import gettext_lazy as _
 
 
@@ -17,7 +18,7 @@ class Ride(models.Model):
     arrive_time = models.DateTimeField()
     current_passengers_num = models.IntegerField(default=1)
     # available_capacity = models.IntegerField(default=1)
-    vehicle_type = models.CharField(max_length=128, null=True)
+    vehicle_type = models.CharField(max_length=128)
     special_request = models.TextField()
     status = models.CharField(default=RideStatus.OPEN, max_length=10,
                               choices=RideStatus.choices)  # OPEN, CANCELLED, CLOSE, CONFIRMED
