@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from users.models import User
 from drivers.models import Driver
 from django.utils.translation import gettext_lazy as _
+import json
 
 
 class Ride(models.Model):
@@ -13,13 +14,13 @@ class Ride(models.Model):
 
     id = models.AutoField(primary_key=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    driver = models.ForeignKey(Driver, default=None, on_delete=models.CASCADE, null=True)
+    driver = models.ForeignKey(Driver, blank=True, on_delete=models.CASCADE, null=True)
     destination = models.CharField(max_length=512)
     arrive_time = models.DateTimeField()
     current_passengers_num = models.IntegerField(default=1)
     # available_capacity = models.IntegerField(default=1)
-    vehicle_type = models.CharField(max_length=128)
-    special_request = models.TextField()
+    vehicle_type = models.CharField(max_length=128, blank=True)
+    special_request = models.TextField(blank=True)
     status = models.CharField(default=RideStatus.OPEN, max_length=10,
                               choices=RideStatus.choices)  # OPEN, CANCELLED, CLOSE, CONFIRMED
     can_be_shared = models.BooleanField(default=False)
@@ -28,6 +29,9 @@ class Ride(models.Model):
 
     def __str__(self):
         return self.destination
+
+    # def to_json(self):
+    #     return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class SharedRequest(models.Model):
@@ -43,3 +47,6 @@ class SharedRequest(models.Model):
     def __str__(self):
         # destination = SharedRequest.objects.get(pk=id)
         return f"{self.required_passengers_num} shared {self.ride_id}"
+    #
+    # def to_json(self):
+    #     return json.dumps(self, default=lambda o: o.__dict__)

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <a href="/request_ride/">Request Ride</a>
+    <h3>Request Ride</h3>
     {% if user.is_authenticated %}
     {% include 'alerts.html' %}
     <form action="/request_ride/" method="POST">
@@ -54,8 +54,8 @@
             <input
                     class="form-check-input"
                     type="checkbox"
-                    value="{{form.can_be_shared}}"
                     id="can_be_shared"
+                    name="can_be_shared"
             />
             <label class="form-check-label" for="can_be_shared">
                 <span>Share with others?</span>
@@ -81,20 +81,7 @@
                 Register
             </button>
         </div>
-
         <hr class="my-4"/>
-        <!-- <div class="d-grid mb-2">
-                                        <button class="btn btn-google btn-login text-uppercase fw-bold"
-                                            type="submit">
-                                            <i class="fab fa-google me-2"></i> Sign in with Google
-                                        </button>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button class="btn btn-facebook btn-login text-uppercase fw-bold"
-                                            type="submit">
-                                            <i class="fab fa-facebook-f me-2"></i> Sign in with Facebook
-                                        </button>
-                                    </div> -->
     </form>
 
     {% else %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load relative_url %}
+<form method="GET">
+    {{filtered_rides.form.as_p}}
+    <input type="submit" value="search">
+    <button><a href="{%  url 'ride_list' %}">Clear</a></button>
+
+</form>
+
+<!---->
+<table class="table table-striped" id="ride-table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Destination</th>
+        <th scope="col">Arrive Time</th>
+        <th scope="col">#Current Passengers</th>
+        <th scope="col">Status</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for ride in rides_page_obj %}
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ride.destination}}</td>
+        <td>{{ride.arrive_time}}</td>
+        <td>{{ride.current_passengers_num}}</td>
+        <td>{{ride.status}}</td>
+    </tr>
+    {% empty %}
+    Sorry, no rides information in this list.
+    {% endfor %}
+    </tbody>
+</table>
+<div class="pagination">
+    <span class="step-links">
+        {% if rides_page_obj.has_previous %}
+            <a href="{% relative_url 1 'page' request.GET.urlencode %}">&laquo; first</a>
+            <a href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ rides_page_obj.number }} of {{ rides_page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if rides_page_obj.has_next %}
+            <a href="{% relative_url rides_page_obj.next_page_number 'page' request.GET.urlencode %}">next</a>
+            <a href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+
+{% endblock content %}

@@ -38,4 +38,5 @@ def ride_list(request: HttpRequest):
     page_number = request.GET.get('page')
     rides_page_obj = paginated_filtered_rides.get_page(page_number)
     context['rides_page_obj'] = rides_page_obj
+    context['driver_view'] = True
     return render(request, 'ride_list.html', context)
