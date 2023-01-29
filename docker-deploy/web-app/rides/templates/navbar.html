@@ -39,7 +39,8 @@
                         {{user.username}}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="/user/my_request">My Request</a></li>
+
                         <li>
                             <form class="dropdown-item" action="/user/logout/" method="POST">
                                 {% csrf_token %}

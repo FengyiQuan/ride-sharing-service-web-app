@@ -12,6 +12,7 @@ class RideFilter(django_filters.FilterSet):
                                                             widget=django_filters.widgets.RangeWidget(
                                                                 attrs={'type': 'datetime-local'}
                                                             ))
+
     # arrive_times_end = django_filters.TimeRangeFilter(field_name="arrive_time", lookup_expr='gte')
     # vehicle_type = django_filters.CharFilter(lookup_expr='icontains')
     # special_request = django_filters.CharFilter(lookup_expr='icontains')

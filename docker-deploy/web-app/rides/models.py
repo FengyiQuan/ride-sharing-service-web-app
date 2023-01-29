@@ -7,16 +7,6 @@ import json
 from django.core.exceptions import ValidationError
 
 
-def validate_arrive_time_from_to(from_time, to_time, return_from: bool):
-    if from_time > to_time:
-        raise ValidationError('from time should be before to time')
-    else:
-        if return_from:
-            return from_time
-        else:
-            return to_time
-
-
 class Ride(models.Model):
     class RideStatus(models.TextChoices):
         OPEN = 'OPEN', _('OPEN')
@@ -60,7 +50,7 @@ class SharedRequest(models.Model):
         return f"{self.required_passengers_num} shared {self.ride_id}"
 
     def clean(self):
-        if self.earliest_arrive_date > self.latest_arrive_date:
+        if self.earliest_arrive_date >= self.latest_arrive_date:
             raise ValidationError('from time should be before to time')
     #
     # def to_json(self):
