@@ -21,6 +21,7 @@ class RideFilter(django_filters.FilterSet):
     class Meta:
         model = Ride
         fields = {'destination': ['icontains'],
+                  'current_passengers_num': ['lt'],
                   'vehicle_type': ['icontains'],
                   'special_request': ['icontains']}
         # form = RideFilterForm
