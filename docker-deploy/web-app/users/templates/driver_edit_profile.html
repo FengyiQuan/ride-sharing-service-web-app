@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block content %}
+<div class="container">
+    {% if user.is_authenticated %}
+    <form method="POST">
+    {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Update">
+
+{#        <button>Update</button>#}
+
+    </form>
+
+    {% else %}
+    <div class="alert alert-danger" role="alert">Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.
+    </div>
+    {% endif %}
+
+
+</div>
+{% endblock content %}
+</form>
+</body>
+</html>
