@@ -1,57 +1,247 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% load static %} {% load relative_url %}
+
+<!--{% block js_block %}-->
+<script
+  defer
+  type="application/javascript"
+  src="{% static '/js/user_ride_list.js' %}"
+></script>
+<!--{% endblock js_block %}-->
 
 {% block content %}
-{% load relative_url %}
 <form method="GET">
-    {{filtered_rides.form.as_p}}
-    <input type="submit" value="search">
-    <button><a href="{%  url 'ride_list' %}">Clear</a></button>
-
+  {{filtered_rides.form.as_p}}
+  <input type="submit" value="search" />
+  <button><a href="{%  url 'user_ride_list' %}">Clear</a></button>
 </form>
 
 <!---->
+{% include 'alerts.html' %}
+<div class="toast-container position-static">
+<!-- <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <img src="..." class="rounded me-2" alt="...">
+        <strong class="me-auto">Bootstrap</strong>
+        <small class="text-muted">just now</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        See? Just like this.
+      </div>
+    </div> -->
+    <!-- 
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <img src="..." class="rounded me-2" alt="...">
+        <strong class="me-auto">Bootstrap</strong>
+        <small class="text-muted">2 seconds ago</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Heads up, toasts will stack automatically
+      </div>
+    </div> -->
+</div>
 <table class="table table-striped" id="ride-table">
-    <thead>
+  <thead>
     <tr>
-        <th scope="col">#</th>
-        <th scope="col">Destination</th>
-        <th scope="col">Arrive Time</th>
-        <th scope="col">#Current Passengers</th>
-        <th scope="col">Status</th>
-
+      <th scope="col">#</th>
+      <th scope="col">Destination</th>
+      <th scope="col">Arrive Time</th>
+      <th scope="col">#Current Passengers</th>
+      <th scope="col">Status</th>
+      <th scope="col">Action</th>
     </tr>
-    </thead>
-    <tbody>
+  </thead>
+  <tbody>
     {% for ride in rides_page_obj %}
     <tr>
-        <th scope="row">{{ forloop.counter }}</th>
-        <td>{{ride.destination}}</td>
-        <td>{{ride.arrive_time}}</td>
-        <td>{{ride.current_passengers_num}}</td>
-        <td>{{ride.status}}</td>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ride.destination}}</td>
+      <td>{{ride.arrive_time}}</td>
+      <td>{{ride.current_passengers_num}}</td>
+      <td>{{ride.status}}</td>
+      <td>
+        {% if driver_view %}
+        <button type="button" class="btn btn-outline-primary btn-sm">
+          Confirm
+        </button>
+        {% else %}
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#rideShareRequestModal"
+          onclick="setRideId({{ride.id}})"
+        >
+          Join
+        </button>
+        {% endif %}
+      </td>
     </tr>
-    {% empty %}
-    Sorry, no rides information in this list.
-    {% endfor %}
-    </tbody>
+    {% empty %} Sorry, no rides information in this list. {% endfor %}
+  </tbody>
 </table>
-<div class="pagination">
-    <span class="step-links">
-        {% if rides_page_obj.has_previous %}
-            <a href="{% relative_url 1 'page' request.GET.urlencode %}">&laquo; first</a>
-            <a href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ rides_page_obj.number }} of {{ rides_page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if rides_page_obj.has_next %}
-            <a href="{% relative_url rides_page_obj.next_page_number 'page' request.GET.urlencode %}">next</a>
-            <a href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}">last &raquo;</a>
-        {% endif %}
-    </span>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="rideShareRequestModal"
+  tabindex="-1"
+  aria-labelledby="rideShareRequestModal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">
+          Ride Share Request
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          action="/create_shared_request/"
+          method="POST"
+          id="ride-share-request-form"
+        >
+          {% csrf_token %}
+          <div class="visually-hidden">
+            <label for="ride_id" class="col-form-label">Ride id:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="ride_id"
+              name="ride_id"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="earliest_arrive_date" class="col-form-label"
+              >Arrive time from:</label
+            >
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="earliest_arrive_date"
+              name="earliest_arrive_date"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="latest_arrive_date" class="col-form-label"
+              >Arrive time to:</label
+            >
+            <input
+              type="datetime-local"
+              class="form-control"
+              id="latest_arrive_date"
+              name="latest_arrive_date"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="required_passengers_num" class="col-form-label"
+              >#Seats needed:</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="required_passengers_num"
+              name="required_passengers_num"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          id="share-request-submit-button"
+          data-bs-dismiss="modal"
+        >
+          Make Request
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-
+Page {{ rides_page_obj.number }} of {{ rides_page_obj.paginator.num_pages }}.
+<ul class="pagination">
+  <li class="page-item">
+    <a
+      class="page-link"
+      href="{% relative_url 1 'page' request.GET.urlencode %}"
+    >
+      &laquo; First</a
+    >
+  </li>
+  <li
+    class="page-item {% if not rides_page_obj.has_previous %} disabled {% endif %}"
+  >
+    {% if rides_page_obj.has_previous %}
+    <a
+      class="page-link"
+      href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}"
+    >
+      Previous
+    </a>
+    {% else %}
+    <a class="page-link"> Previous </a>
+    {% endif %}
+  </li>
+  {% if rides_page_obj.has_previous %}
+  <li class="page-item">
+    <a
+      class="page-link"
+      href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}"
+    >
+      {{rides_page_obj.previous_page_number}}
+    </a>
+  </li>
+  {% endif %}
+  <li class="page-item active" aria-current="page">
+    <a class="page-link" href="#">{{ rides_page_obj.number }}</a>
+  </li>
+  {% if rides_page_obj.has_next %}
+  <li class="page-item">
+    <a
+      class="page-link"
+      href="{% relative_url rides_page_obj.next_page_number 'page' request.GET.urlencode %}"
+    >
+      {{rides_page_obj.next_page_number}}
+    </a>
+  </li>
+  {% endif %}
+  <li
+    class="page-item {% if not rides_page_obj.has_next %} disabled {% endif %}"
+  >
+    <a
+      class="page-link"
+      href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}"
+      >Next</a
+    >
+  </li>
+  <li class="page-item">
+    <a
+      class="page-link"
+      href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}"
+    >
+      Last &raquo;
+    </a>
+  </li>
+</ul>
+<script>
+//   window.onload = (e) => {
+//     let newToast = document.querySelector(".toast");
+//     let bsAlert = new bootstrap.Toast(newToast); //inizialize it
+//     console.log(bsAlert);
+//     bsAlert.show(); //show it
+//   };
+</script>
 {% endblock content %}

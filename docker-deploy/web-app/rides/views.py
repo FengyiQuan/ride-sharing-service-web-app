@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponse, JsonResponse
-
+from django.contrib import messages
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .forms import RequestRideForm
+from .forms import RequestRideForm, RideShareRequestForm
 from django.contrib import messages
-from .models import Ride
+from .models import Ride, SharedRequest
 from .filters import RideFilter
-
+import json
+from django.forms.models import model_to_dict
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 
 # Create your views here.
+entry_number_per_page = 5
+
 
 @require_GET
 def home(request: HttpRequest):
@@ -36,42 +40,91 @@ def request_ride(request: HttpRequest):
         vehicle_type = form_data.get('vehicle_type')
         can_be_shared = form_data.get('can_be_shared')
         special_request = form_data.get('special_request')
-        # print(can_be_shared)
+        # print(form_data.get('can_be_shared'))
         if has_error:
             # return JsonResponse({"a":"asd"})
             return render(request, 'request_ride.html', {'form': form_data})
         else:
-            # count = User.objects.filter(username=username).count()
-            # if count != 0:
-            #     messages.error(request, 'User already exist. ')
-            #     return render(request, 'register.html', {'form': form_data})
-            # else:
             user = request.user
-            ride_request = Ride.objects.create(owner=user, destination=destination, arrive_time=arrive_time,
-                                               current_passengers_num=required_passengers_num,
-                                               vehicle_type=vehicle_type, can_be_shared=can_be_shared,
-                                               special_request=special_request)
-            # user = User.objects.create_user(username, email, password)
-            # print(user.get_short_name())
-            messages.success(request,
-                             f'Hi {user.get_short_name()}, your request to {ride_request.destination} was created. ')
-            return redirect('/')
+            new_ride_request = Ride(owner=user, destination=destination, arrive_time=arrive_time,
+                                    current_passengers_num=required_passengers_num,
+                                    vehicle_type=vehicle_type, can_be_shared=can_be_shared,
+                                    special_request=special_request)
+            try:
+                new_ride_request.full_clean()
+                new_ride_request.save()
+                messages.success(request,
+                                 f'Hi {user.get_short_name()}, your request to {new_ride_request.destination} was created. ')
+                return redirect('/')
+            except ValidationError as e:
+                non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+                messages.error(request, non_field_errors)
+                return render(request, 'request_ride.html', {'form': form_data})
     else:
         return render(request, 'request_ride.html')
 
 
-def ride_list(request: HttpRequest):
-    rides = Ride.objects.all()
-    return render(request, 'ride_list.html', {'ride_list': rides, })
-
-
+@require_GET
+@login_required
 def show_all_ride_list(request: HttpRequest):
     context = {}
     filtered_rides = RideFilter(request.GET, queryset=Ride.objects.all())
     context['filtered_rides'] = filtered_rides
-    entry_number_per_page = 1
+
     paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
     page_number = request.GET.get('page')
     rides_page_obj = paginated_filtered_rides.get_page(page_number)
     context['rides_page_obj'] = rides_page_obj
     return render(request, 'ride_list.html', context)
+
+
+@require_GET
+@login_required
+def user_ride_list(request: HttpRequest):
+    context = {}
+    user = request.user
+    shared_ride = SharedRequest.objects.filter(sharer=user)
+    queryset = Ride.objects.filter(can_be_shared=True, status=Ride.RideStatus.OPEN).exclude(
+        owner=user, id__in=[r.id for r in shared_ride]).order_by('arrive_time')
+    filtered_rides = RideFilter(request.GET, queryset=queryset)
+    context['filtered_rides'] = filtered_rides
+    paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
+    page_number = request.GET.get('page')
+    rides_page_obj = paginated_filtered_rides.get_page(page_number)
+    context['rides_page_obj'] = rides_page_obj
+    return render(request, 'ride_list.html', context)
+
+
+@require_POST
+@login_required
+def create_shared_request(request: HttpRequest):
+    form = RideShareRequestForm(request.POST)
+
+    if form.is_valid():
+        form_data = form.cleaned_data
+        sharer = request.user
+        ride_id = form_data.get('ride_id')
+        ride = Ride.objects.get(id=ride_id, can_be_shared=True, status=Ride.RideStatus.OPEN)
+        if not ride:
+            return JsonResponse({'error': 'no such ride or ride cannot be shareds'})
+        earliest_arrive_date = form_data.get('earliest_arrive_date')
+        latest_arrive_date = form_data.get('latest_arrive_date')
+        required_passengers_num = form_data.get('required_passengers_num')
+
+        new_shared_request = SharedRequest(sharer=sharer, ride_id=ride, earliest_arrive_date=earliest_arrive_date,
+                                           latest_arrive_date=latest_arrive_date,
+                                           required_passengers_num=required_passengers_num)
+        try:
+            new_shared_request.full_clean()
+            new_shared_request.save()
+            ride.current_passengers_num += required_passengers_num
+            ride.save()
+            messages.success(request, 'share request create successful')
+            return JsonResponse({'shared_request': model_to_dict(new_shared_request)}, safe=False)
+        except ValidationError as e:
+            non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+            messages.error(request, non_field_errors)
+            return JsonResponse({'error': non_field_errors}, status=400)
+    else:
+        messages.error(request, form.errors)
+        return JsonResponse({'error': form.errors}, status=400)
