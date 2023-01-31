@@ -5,12 +5,24 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Test Profile</h1>
-    <p>
-        {{ user_data.username}}
-        {{ user_data.email }}
-        {{ user_data.lastname }}
-        {{ user_data.firstname }}
-    </p>
+<div class="container">
+
+    {% block content %}
+
+    <h1>User Profile</h1>
+    <p> {{ user_data.username}} </p>
+    <p> {{ user_data.email }} </p>
+    <p> {{ user_data.lastname }} </p>
+    <p> {{ user_data.firstname }} </p>
+
+    <a href="/user/editprofile/">Edit</a>
+    {% if user.is_driver %}
+        <button><a href="/user/driverprofile/">View Driver Info</a></button>
+    {% else %}
+        <button><a href="/user/register_driver/">register_driver</a></button>
+    {% endif %}
+
+    {% endblock content %}
+</div>
 </body>
 </html>
