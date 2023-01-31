@@ -30,8 +30,7 @@ access.
 - When a user requests a ride, he/she becomes the owner of that ride. Requesting
 a ride should involve specifying a destination address, a required arrival (date & me), the
 number of total passengers from the owner’s party, and optionally, a vehicle type and any other
-special requests1
-. A request will also indicate whether this ride can be shared or not – a shared
+special requests. A request will also indicate whether this ride can be shared or not – a shared
 ride can be joined by other users (ride sharers). A ride owner would be able to modify a ride
 request up unl it is confirmed (a ride becomes confirmed once a driver accepts the ride and is
 in route). A ride is open from the me it is requested unl that point. A ride owner can also
