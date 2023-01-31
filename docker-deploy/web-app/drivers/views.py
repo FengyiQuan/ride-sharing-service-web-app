@@ -88,3 +88,28 @@ def confirm_ride(request: HttpRequest, ride_id: int):
         non_field_errors = e.message_dict[NON_FIELD_ERRORS]
         messages.error(request, non_field_errors)
         return JsonResponse({'error': non_field_errors}, status=400)
+
+
+@login_required
+@user_passes_test(is_driver)
+@require_POST
+def complete_ride(request: HttpRequest, ride_id: int):
+    user = request.user
+    ride = Ride.objects.get(id=ride_id, driver=user)
+    if not ride:
+        messages.error(request, "ride does not exist or it does not belong to you as a driver. ")
+        return JsonResponse({'error': "ride does not exist or it does not belong to you as a driver. "}, status=400)
+    elif ride.status != Ride.RideStatus.CONFIRMED:
+        messages.error(request, "unable to complete a non-confirmed ride")
+        return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
+    else:
+        ride.status = Ride.RideStatus.COMPLETE
+        try:
+            ride.full_clean()
+            ride.save()
+            messages.success(request, f'ride for user {ride.owner} complete successful. ')
+            return JsonResponse({'ride': model_to_dict(ride)}, safe=False)
+        except ValidationError as e:
+            non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+            messages.error(request, non_field_errors)
+            return JsonResponse({'error': non_field_errors}, status=400)
