@@ -197,4 +197,3 @@ class driverEditView(generic.UpdateView):
     def get_object(self):
         # user_id =  request.user.id
         driver = Driver.objects.get(user=self.request.user)
-        return driver

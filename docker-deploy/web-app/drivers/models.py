@@ -14,6 +14,7 @@ class Driver(models.Model):
     special_info = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     #
     # def get_absolute_url(self):
     #     return reverse('home', kwargs={'pk': self.pk})
@@ -23,3 +24,5 @@ class Driver(models.Model):
     #
     # def get_slug_field(self):
     #     self.plate_num
+    def __str__(self):
+        return str(self.user)

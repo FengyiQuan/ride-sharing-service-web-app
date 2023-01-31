@@ -11,6 +11,7 @@ class Ride(models.Model):
     class RideStatus(models.TextChoices):
         OPEN = 'OPEN', _('OPEN')
         CONFIRMED = 'CONFIRMED', _('CONFIRMED')
+        COMPLETE = 'COMPLETE', _('COMPLETE')
         CLOSED = 'CLOSED', _('CLOSED')
 
     id = models.AutoField(primary_key=True)
@@ -31,6 +32,24 @@ class Ride(models.Model):
     def __str__(self):
         return self.destination
 
+    def clean(self):
+        share_requests = SharedRequest.objects.filter(sharer=self.owner)
+        for request in share_requests:
+            if self.arrive_time < request.earliest_arrive_date or self.arrive_time > request.latest_arrive_date:
+                raise ValidationError("arrive_time not match other request's schedule")
+        # TODO: driver info match validator
+        if self.driver is None:
+            return
+        elif self.status == self.RideStatus.OPEN:
+            raise ValidationError("open ride is not allowed to have a driver ")
+        else:
+            # driver = self.driver.foreign_related_fields
+            driver_max_capacity = self.driver.max_capacity
+            driver_special_info = self.driver.special_info
+            driver_vehicle_type = self.driver.vehicle_type
+            if driver_max_capacity > self.current_passengers_num and driver_special_info != self.special_request and (
+                    self.vehicle_type or driver_vehicle_type != self.vehicle_type):
+                raise ValidationError("your profile does not match request ride. ")
     # def to_json(self):
     #     return json.dumps(self, default=lambda o: o.__dict__)
 
@@ -38,7 +57,7 @@ class Ride(models.Model):
 class SharedRequest(models.Model):
     id = models.AutoField(primary_key=True)
     sharer = models.ForeignKey(User, on_delete=models.CASCADE)
-    ride_id = models.ForeignKey(Ride, on_delete=models.CASCADE, null=True)
+    ride = models.ForeignKey(Ride, on_delete=models.CASCADE, null=True)
     earliest_arrive_date = models.DateTimeField(help_text='Format: 2020-01-01 12:00')
     latest_arrive_date = models.DateTimeField(help_text='Format: 2020-01-01 13:00')
     required_passengers_num = models.PositiveIntegerField()
@@ -47,11 +66,14 @@ class SharedRequest(models.Model):
 
     def __str__(self):
         # destination = SharedRequest.objects.get(pk=id)
-        return f"{self.required_passengers_num} shared {self.ride_id}"
+        return f"{self.required_passengers_num} shared {self.ride}"
 
     def clean(self):
         if self.earliest_arrive_date >= self.latest_arrive_date:
             raise ValidationError('from time should be before to time')
+        # ride = Ride.objects.get(id=self.ride_id)
+        if self.ride.arrive_time < self.earliest_arrive_date or self.ride.arrive_time > self.latest_arrive_date:
+            raise ValidationError("time range not in owner's schedule")
     #
     # def to_json(self):
     #     return json.dumps(self, default=lambda o: o.__dict__)
