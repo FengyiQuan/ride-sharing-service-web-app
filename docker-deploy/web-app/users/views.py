@@ -199,7 +199,16 @@ class ownedRideEditView(generic.UpdateView):
     model = Ride
     fields = ['destination']
     template_name = 'owned_ride_edit.html'
-    # success_url = reverse_lazy('driverprofile')
-    def get_object(self,id):
-        ride = Ride.objects.get(id=id)
+    success_url = reverse_lazy('user_rides')
+    def get_object(self, *args, **kwargs):
+        ride = Ride.objects.get(id=self.kwargs.get('id'))
         return ride
+
+class sharedRideEditView(generic.UpdateView):
+    model = Ride
+    fields = ['sharer']
+    template_name = 'shared_ride_edit.html'
+    success_url = reverse_lazy('user_rides')
+    def get_object(self, *args, **kwargs):
+        sharedRequest = SharedRequest.objects.get(id=self.kwargs.get('id'))
+        return sharedRequest
