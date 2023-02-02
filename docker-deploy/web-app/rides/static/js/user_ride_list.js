@@ -96,3 +96,4 @@ function setRideId(rideId) {
 //   bsAlert.show(); //show it
 //   // console.log(false)
 // }
+

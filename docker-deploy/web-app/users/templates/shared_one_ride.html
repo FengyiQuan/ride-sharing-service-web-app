@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+    <h2>Ride Details</h2>
+    <p>Id: {{ride_obj.id}} </p>
+    <p>Ride ID: {{ ride_obj.ride_id }} </p>
+    <p>earliest_arrive_date:{{ ride_obj.earliest_arrive_date }} </p>
+
+{#    <button><a href="/user/editprofile/">Edit</a></button>#}
+{#    {% if user.is_driver %}#}
+{#        <button><a href="/user/driverprofile/">View Driver Info</a></button>#}
+{#    {% else %}#}
+{#        <button><a href="/user/register_driver/">register_driver</a></button>#}
+{#    {% endif %}#}
+
+{% endblock content %}

@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>Test Profile</h1>
-    <p>
-        {{ driver_data.vehicle_type}}
-        {{ driver_data.max_capacity }}
-        {{ driver_data.plate_num }}
-    </p>
-    <button><a href="/user/editdriverprofile/">Edit</a></button>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+
+    <h2>Driver Profile</h2>
+    <p>Vehicle_type: {{ driver_data.vehicle_type}}</p>
+    <p>Maximum Capacity: {{ driver_data.max_capacity }}</p>
+    <p>Plate Number: {{ driver_data.plate_num }}</p>
+    <button><a href="/user/editdriverprofile/">Edit</a></button>
+    
+{% endblock content %}

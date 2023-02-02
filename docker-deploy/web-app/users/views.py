@@ -1,4 +1,6 @@
 from django.contrib.auth.forms import UserChangeForm
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpRequest
@@ -7,6 +9,8 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib.auth.decorators import login_required
+
+from rides.models import SharedRequest, Ride
 from .models import User
 from drivers.models import Driver
 from .forms import RegisterUserForm, RegisterDriverForm, driverUserEditProfileForm, \
@@ -99,59 +103,17 @@ def register_driver(request: HttpRequest):
 def viewUserInfo(request: HttpRequest):
     curUser = request.user
     # TODO what is driver status here?
-
-    # status  = 'undefined'
-    # curUserInfo = User.objects.get(user = curUser)
-    # username = curUserInfo.username
-    # lastname = curUserInfo.lastname
-    # firstname = curUserInfo.firstname
-    # email = curUserInfo.email
-    # # get vehicle info
-    # driver = Driver.objects.get(user=curUser)
-    # vehicle_type = driver.vehicle_type
-    # max_capacity = driver.max_capacity
-    # plate_num = driver.plate_num
-    # special_info = driver.special_info
     data = User.objects.get(id=curUser.id)
     context = {
         'user_data': data,
     }
     return render(request, 'profile.html', context)
 
-
-# @require_http_methods(["GET", "POST"])
-@login_required
-def editUserInfo(request: HttpRequest):
-    if request.user.is_driver:
-        form = userEditProfileForm(request.POST)
-    if not form.is_valid():
-        messages.error(request, form.errors)
-        has_error = True
-    # form = form.qq
-    form = form.cleaned_data
-    # username = form.get('username')
-    email = form.get('email')
-    lastname = form.get('lastname')
-    firstname = form.get('firstname')
-    User.objects.filter(id=request.user.id).update(
-        email=email,
-        # lastname=lastname,
-        # firstname=firstname,
-    )
-    messages.success(request, f'Hi {request.user.get_short_name()}, your information have been changed.')
-    return redirect('/profile')
-
-
 class UserEditView(generic.UpdateView):
-    # model = User
-    # form_class = UserChangeForm
     template_name = 'editProfile.html'
-    success_url = reverse_lazy('home')
-    fields = ['username']
-
+    success_url = reverse_lazy('profile')
+    fields = ['username', 'email','first_name','last_name']
     def get_object(self):
-        #     pass
-        #     userId =
         return self.request.user
 
 
@@ -186,15 +148,58 @@ def editDriverInfo(request: HttpRequest):
 
 class driverEditView(generic.UpdateView):
     model = Driver
-    fields = ['plate_num']
+    fields = ['plate_num','max_capacity','vehicle_type']
     template_name = 'driver_edit_profile.html'
-    # slug_field = 'plate_num'
-    # slug_url_kwarg = 'plate_num'
-
-    success_url = reverse_lazy('home')
-
-    #
+    success_url = reverse_lazy('driverprofile')
     def get_object(self):
-        # user_id =  request.user.id
         driver = Driver.objects.get(user=self.request.user)
         return driver
+
+@require_GET
+@login_required
+def userRidesView(request: HttpRequest):
+    context = {}
+    user = request.user
+    owmed_ride = Ride.objects.filter(owner=user).exclude(status=Ride.RideStatus.CLOSED)
+    # TODO: fix the query here
+    shared_ride = SharedRequest.objects.filter(sharer=user)
+
+    paginated_owned_rides = Paginator(owmed_ride, 5)
+    page_number = request.GET.get('page')
+    owned_rides_page_obj = paginated_owned_rides.get_page(page_number)
+    context['owned_rides_page_obj'] = owned_rides_page_obj
+
+    paginated_shared_rides = Paginator(shared_ride, 5)
+    page_number = request.GET.get('page')
+    shared_rides_page_obj = paginated_shared_rides.get_page(page_number)
+    context['shared_rides_page_obj'] = shared_rides_page_obj
+
+    return render(request, 'user_rides.html', context)
+
+
+@require_GET
+@login_required
+def userDetailsOwnedRidesView(request: HttpRequest, id):
+    context = {}
+    # user = request.user
+    owned_ride = Ride.objects.get(id=id)
+    context['ride_obj'] = owned_ride
+    return render(request, 'owned_one_ride.html', context)
+@require_GET
+@login_required
+def userDetailsSharedRidesView(request: HttpRequest, id):
+    context = {}
+    # user = request.user
+    # todo: fix query
+    owned_ride = SharedRequest.objects.get(id=id)
+    context['ride_obj'] = owned_ride
+    return render(request, 'owned_one_ride.html', context)
+
+class ownedRideEditView(generic.UpdateView):
+    model = Ride
+    fields = ['destination']
+    template_name = 'owned_ride_edit.html'
+    # success_url = reverse_lazy('driverprofile')
+    def get_object(self,id):
+        ride = Ride.objects.get(id=id)
+        return ride
