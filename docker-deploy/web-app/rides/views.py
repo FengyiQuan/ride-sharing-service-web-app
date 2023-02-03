@@ -141,4 +141,8 @@ def complete_ride(request: HttpRequest, ride_id: int):
         messages.error(request, "unable to complete a non-confirmed ride")
         return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
     else:
-        pass
+        ride.full_clean()
+        ride.status = Ride.RideStatus.COMPLETE
+        ride.save()
+        messages.success(request, "ride completed")
+        return JsonResponse({'success': "ride completed"}, status=200)
