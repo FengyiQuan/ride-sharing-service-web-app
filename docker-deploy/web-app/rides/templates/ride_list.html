@@ -22,7 +22,7 @@
   {{filtered_rides.form.as_p}}
   <input type="submit" value="search" />
   {% if driver_view %}
-  <button><a href="{%  url 'confirmed_ride_list' %}">Clear</a></button>
+  <button><a href="{%  url 'driver_ride_list' %}">Clear</a></button>
   {% else %}
   <button><a href="{%  url 'user_ride_list' %}">Clear</a></button>
   {% endif %}
