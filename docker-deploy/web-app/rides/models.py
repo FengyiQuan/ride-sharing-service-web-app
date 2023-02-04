@@ -57,7 +57,7 @@ class Ride(models.Model):
 class SharedRequest(models.Model):
     id = models.AutoField(primary_key=True)
     sharer = models.ForeignKey(User, on_delete=models.CASCADE)
-    ride = models.ForeignKey(Ride, on_delete=models.CASCADE, null=True)
+    ride = models.ForeignKey(Ride, on_delete=models.CASCADE)
     earliest_arrive_date = models.DateTimeField(help_text='Format: 2020-01-01 12:00')
     latest_arrive_date = models.DateTimeField(help_text='Format: 2020-01-01 13:00')
     required_passengers_num = models.PositiveIntegerField()

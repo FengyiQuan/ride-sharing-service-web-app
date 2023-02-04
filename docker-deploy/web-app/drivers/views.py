@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from rides.filters import RideFilter
 from rides.models import Ride
 from .models import Driver
+from users.models import User
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.contrib import messages
 from django.forms.models import model_to_dict
-
+from django.core.mail import send_mail
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 
 # from django.contrib.auth.decorators import
@@ -82,6 +83,22 @@ def confirm_ride(request: HttpRequest, ride_id: int):
     try:
         ride.full_clean()
         ride.save()
+        send_mail(
+            'Here is the message',
+            'As a ride-owner, your ride has been comfirmed',
+            'no-reply@ride-app.com',
+            [ride.owner.email],
+            fail_silently=False,
+        )
+        sharer = User.objects.filter(id == ride.sharer.all().values_list('id', flat=True))
+        if sharer:
+            send_mail(
+                'Here is the message',
+                'As a ride-sharer, your ride has been confirmed',
+                'no-reply@ride-app.com',
+                [sharer.email],
+                fail_silently=False,
+            )
         messages.success(request, f'ride for user {ride.owner} confirmed successful. ')
         return JsonResponse({'ride': model_to_dict(ride)}, safe=False)
     except ValidationError as e:

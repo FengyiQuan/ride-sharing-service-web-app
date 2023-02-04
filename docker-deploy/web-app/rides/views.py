@@ -129,20 +129,20 @@ def create_shared_request(request: HttpRequest):
         return JsonResponse({'error': form.errors}, status=400)
 
 
-@login_required
-@require_POST
-def complete_ride(request: HttpRequest, ride_id: int):
-    user = request.user
-    ride = Ride.objects.get(id=ride_id, owner=user)
-    if not ride:
-        messages.error(request, "ride does not exist or it does not belong to you. ")
-        return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
-    elif ride.status != Ride.RideStatus.CONFIRMED:
-        messages.error(request, "unable to complete a non-confirmed ride")
-        return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
-    else:
-        ride.full_clean()
-        ride.status = Ride.RideStatus.COMPLETE
-        ride.save()
-        messages.success(request, "ride completed")
-        return JsonResponse({'success': "ride completed"}, status=200)
+# @login_required
+# @require_POST
+# def complete_ride(request: HttpRequest, ride_id: int):
+#     user = request.user
+#     ride = Ride.objects.get(id=ride_id, owner=user)
+#     if not ride:
+#         messages.error(request, "ride does not exist or it does not belong to you. ")
+#         return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
+#     elif ride.status != Ride.RideStatus.CONFIRMED:
+#         messages.error(request, "unable to complete a non-confirmed ride")
+#         return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
+#     else:
+#         ride.full_clean()
+#         ride.status = Ride.RideStatus.COMPLETE
+#         ride.save()
+#         messages.success(request, "ride completed")
+#         return JsonResponse({'success': "ride completed"}, status=200)

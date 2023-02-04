@@ -6,7 +6,7 @@ urlpatterns = [
     path('request_ride/', views.request_ride, name='request_ride'),
     path('create_shared_request/', views.create_shared_request, name='shared_request'),
     path('ride_list/', views.user_ride_list, name='user_ride_list'),
-    path('complete_ride/<int:ride_id>', views.complete_ride, name='complete_ride'),
+    # path('complete_ride/<int:ride_id>', views.complete_ride, name='complete_ride'),
 
     path('test/', views.show_all_ride_list, name='ride_list'),
 ]

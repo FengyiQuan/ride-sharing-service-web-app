@@ -109,10 +109,12 @@ def viewUserInfo(request: HttpRequest):
     }
     return render(request, 'profile.html', context)
 
+
 class UserEditView(generic.UpdateView):
     template_name = 'editProfile.html'
     success_url = reverse_lazy('profile')
-    fields = ['username', 'email','first_name','last_name']
+    fields = ['username', 'email', 'first_name', 'last_name']
+
     def get_object(self):
         return self.request.user
 
@@ -148,21 +150,38 @@ def editDriverInfo(request: HttpRequest):
 
 class driverEditView(generic.UpdateView):
     model = Driver
-    fields = ['plate_num','max_capacity','vehicle_type']
+    fields = ['plate_num', 'max_capacity', 'vehicle_type']
     template_name = 'driver_edit_profile.html'
     success_url = reverse_lazy('driverprofile')
+
     def get_object(self):
         driver = Driver.objects.get(user=self.request.user)
         return driver
+
 
 @require_GET
 @login_required
 def userRidesView(request: HttpRequest):
     context = {}
     user = request.user
-    owmed_ride = Ride.objects.filter(owner=user).exclude(status=Ride.RideStatus.CLOSED)
+    owmed_ride = Ride.objects.filter(owner=user).exclude(status=[Ride.RideStatus.CLOSED, Ride.RideStatus.COMPLETE])
     # TODO: fix the query here
     shared_ride = SharedRequest.objects.filter(sharer=user)
+    temp = []
+    for ride in shared_ride:
+        if ride.ride.status == Ride.RideStatus.CLOSED or ride.ride.status == Ride.RideStatus.COMPLETE:
+            continue
+        else:
+            shared_ride = shared_ride.exclude(id=ride.id)
+            ride.destination = ride.ride.destination
+            ride.arrive_time = ride.ride.arrive_time
+            ride.current_passengers_num = ride.ride.current_passengers_num
+            temp.append(ride)
+    shared_ride = temp
+
+    # print(ride.ride)
+    # shared_ride = shared_ride.exclude(status=[Ride.RideStatus.CLOSED, Ride.RideStatus.COMPLETE])
+    # print(shared_ride)
 
     paginated_owned_rides = Paginator(owmed_ride, 5)
     page_number = request.GET.get('page')
@@ -185,6 +204,8 @@ def userDetailsOwnedRidesView(request: HttpRequest, id):
     owned_ride = Ride.objects.get(id=id)
     context['ride_obj'] = owned_ride
     return render(request, 'owned_one_ride.html', context)
+
+
 @require_GET
 @login_required
 def userDetailsSharedRidesView(request: HttpRequest, id):
@@ -195,20 +216,24 @@ def userDetailsSharedRidesView(request: HttpRequest, id):
     context['ride_obj'] = owned_ride
     return render(request, 'owned_one_ride.html', context)
 
+
 class ownedRideEditView(generic.UpdateView):
     model = Ride
     fields = ['destination']
     template_name = 'owned_ride_edit.html'
     success_url = reverse_lazy('user_rides')
+
     def get_object(self, *args, **kwargs):
         ride = Ride.objects.get(id=self.kwargs.get('id'))
         return ride
+
 
 class sharedRideEditView(generic.UpdateView):
     model = Ride
     fields = ['sharer']
     template_name = 'shared_ride_edit.html'
     success_url = reverse_lazy('user_rides')
+
     def get_object(self, *args, **kwargs):
         sharedRequest = SharedRequest.objects.get(id=self.kwargs.get('id'))
         return sharedRequest
