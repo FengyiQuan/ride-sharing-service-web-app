@@ -90,9 +90,10 @@
       class="btn btn-outline-primary btn-sm"
       data-bs-toggle="modal"
       data-bs-target="#rideShareRequestModal"
-      onclick="setRideId({{ride.id}})"
-    >
+   >
+      <a href={% url 'user_shared_rides_edit' id=ride.id %}>
       Edit
+    </a>
     </button>
   </td>
 </tr>

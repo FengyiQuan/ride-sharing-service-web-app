@@ -81,9 +81,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ride-app',
         'USER': 'postgres',
-        'PASSWORD': 'ruqiulixia0220',
+        'PASSWORD': 'wadqq',
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 # DATABASES = {
@@ -142,8 +142,8 @@ AUTH_USER_MODEL = 'users.User'
 
 # email setting
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'ride-share-service@outlook.com'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST_USER = 'ride_share_app@outlook.com'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST_PASSWORD = 'RideShareService1'
+EMAIL_HOST_PASSWORD = 'Assignment1'
 EMAIL_PORT = 587
