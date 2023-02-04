@@ -8,13 +8,14 @@ from django.contrib.auth import logout
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http.response import HttpResponseRedirect
 
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from rides.models import SharedRequest, Ride
 from .models import User
 from drivers.models import Driver
-from .forms import RegisterUserForm, RegisterDriverForm, driverUserEditProfileForm, \
-    userEditProfileForm
+from .forms import RegisterUserForm, RegisterDriverForm, driverUserEditProfileForm, userEditProfileForm
 
 
 @require_POST
@@ -59,6 +60,7 @@ def register(request: HttpRequest):
 
 @require_http_methods(["GET", "POST"])
 @login_required
+@user_passes_test(lambda user: not user.is_driver)
 def register_driver(request: HttpRequest):
     if request.method == "POST":
         form = RegisterDriverForm(request.POST)
@@ -176,6 +178,7 @@ def userRidesView(request: HttpRequest):
             ride.destination = ride.ride.destination
             ride.arrive_time = ride.ride.arrive_time
             ride.current_passengers_num = ride.ride.current_passengers_num
+            ride.status = ride.ride.status
             temp.append(ride)
     shared_ride = temp
 
@@ -219,7 +222,8 @@ def userDetailsSharedRidesView(request: HttpRequest, id):
 
 class ownedRideEditView(generic.UpdateView):
     model = Ride
-    fields = ['destination']
+    fields = ['destination', 'arrive_time', 'current_passengers_num', 'vehicle_type', 'special_request',
+              'can_be_shared']
     template_name = 'owned_ride_edit.html'
     success_url = reverse_lazy('user_rides')
 
@@ -229,11 +233,44 @@ class ownedRideEditView(generic.UpdateView):
 
 
 class sharedRideEditView(generic.UpdateView):
-    model = Ride
-    fields = ['sharer']
+    model = SharedRequest
+    fields = ['earliest_arrive_date', 'latest_arrive_date',
+              'required_passengers_num']
     template_name = 'shared_ride_edit.html'
     success_url = reverse_lazy('user_rides')
 
     def get_object(self, *args, **kwargs):
+        # shared_request_id = Ride.objects.get(id=self.kwargs.get('id'))
         sharedRequest = SharedRequest.objects.get(id=self.kwargs.get('id'))
+        # print(sharedRequest)
         return sharedRequest
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        temp = self.get_object()
+        shared_id = self.kwargs.get('id')
+        ride = Ride.objects.get(id=shared_id, can_be_shared=True, status=Ride.RideStatus.OPEN)
+        if not ride:
+            messages.error(request, f'Hi {request.user.get_short_name()}, this ride is not available for editing. ')
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            try:
+                self.object.full_clean()
+                # self.object.save()
+                # print(self.get_form())
+                form = self.get_form()
+                if form.is_valid():
+                    ride.current_passengers_num -= (
+                            temp.required_passengers_num - form.cleaned_data['required_passengers_num'])
+                    # print('temp.required_passengers_num', temp.required_passengers_num)
+                    # print('form.cleaned_data[required_passengers_num]', form.cleaned_data['required_passengers_num'])
+                    # print(ride.current_passengers_num)
+                    ride.save()
+                    super().post(request, *args, **kwargs)
+
+                    messages.success(request, 'share request create successful')
+                    return HttpResponseRedirect(self.get_success_url())
+            except ValidationError as e:
+                non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+                messages.error(request, non_field_errors)
+                return HttpResponseRedirect(self.get_success_url())

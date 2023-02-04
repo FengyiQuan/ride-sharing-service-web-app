@@ -80,8 +80,7 @@
       data-bs-toggle="modal"
       data-bs-target="#rideShareRequestModal"
 {#      onclick="setRideId({{ride.id}})"#}
-    ><a href="/user/user_rides/{{ ride_id }}">
-{#onclick="location.href=this.href+'?id='+{{ ride_id }};return false;">#}
+    ><a href={% url 'user_shared_rides_detail' id=ride.id %}>
       Details
     </a>
     </button>
@@ -90,9 +89,9 @@
       class="btn btn-outline-primary btn-sm"
       data-bs-toggle="modal"
       data-bs-target="#rideShareRequestModal"
-      onclick="setRideId({{ride.id}})"
-    >
+    ><a href={% url 'user_shared_rides_edit' id=ride.id %}>
       Edit
+    </a>
     </button>
   </td>
 </tr>

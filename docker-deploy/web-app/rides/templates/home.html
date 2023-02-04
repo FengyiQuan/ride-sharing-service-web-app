@@ -1,37 +1,36 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    This is home.
-    {% include 'alerts.html' %}
-    <a href="/user/login/">Login</a>
-    {% if user.is_authenticated %}
-    <p>Welcome, {{ user.username }}. Thanks for logging in.</p>
-    <form action="/user/logout/" method="POST">
-        {% csrf_token %}
-        <button type="submit">Log Out</button>
-    </form>
-    <button><a href="/admin/">Admin</a></button>
-    <button><a href="/user/register_driver/">register_driver</a></button>
+    <div class="container">
+        This is home.
+        {% include 'alerts.html' %}
 
-    <button><a href="/test/">for test only</a></button>
-
-    <button><a href="/request_ride/">user: request_ride</a></button>
-
-    <button><a href="/ride_list/">user: rides list</a></button>
-    <button><a href="/driver/ride_list/">driver: ride_list</a></button>
-        <button><a href="/user/profile/">userProfile</a></button>
-<<<<<<< HEAD
-        <button><a href="/user/user_rides/">user rides</a></button>
-
-=======
-     <button><a href="/driver/confirmed_ride_list/">driver:confirmed_ride</a></button>
->>>>>>> origin/main
-
-    {% else %}
-    <p>Welcome, new user. Please log in.</p>
-    {% endif %}
+        {% if not user.is_authenticated %}
+            <p>Welcome, new user. Please log in.</p>
+            <button><a href="/user/login/">Login</a></button>
+        {% else %}
+            <p>Welcome, {{ user.username }}. Thanks for logging in.</p>
+            <form action="/user/logout/" method="POST">
+                {% csrf_token %}
+                <button type="submit">Log Out</button>
+            </form>
+            <button><a href="/admin/">Admin</a></button>
+            <button><a href="/user/register_driver/">register_driver</a></button>
 
 
-</div>
+            <button><a href="/request_ride/">user: request_ride</a></button>
+
+            <button><a href="/ride_list/">user: rides list</a></button>
+            <button><a href="/driver/ride_list/">driver: ride_list</a></button>
+            <button><a href="/user/profile/">userProfile</a></button>
+
+            <button><a href="/user/user_rides/">user: myUser rides</a></button>
+
+            <button><a href="/driver/confirmed_ride_list/">driver:confirmed_ride</a></button>
+
+
+        {% endif %}
+
+
+    </div>
 {% endblock content %}

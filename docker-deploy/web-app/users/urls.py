@@ -3,7 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_view
 
 from .views import viewUserInfo, viewDriverInfo, UserEditView, driverEditView, userRidesView, userDetailsOwnedRidesView, \
-    userDetailsSharedRidesView, ownedRideEditView
+    userDetailsSharedRidesView, ownedRideEditView, sharedRideEditView
 
 urlpatterns = [
     path('login/', auth_view.LoginView.as_view(template_name='login.html'), name="login"),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('user_owned_rides_detail/<int:id>/', userDetailsOwnedRidesView, name="user_owned_rides_detail"),
     path('user_shared_rides_detail/<int:id>/', userDetailsSharedRidesView, name="user_shared_rides_detail"),
     path('user_owned_rides_edit/<int:id>/', ownedRideEditView.as_view(), name="user_owned_rides_edit"),
+    path('user_shared_rides_edit/<int:id>/', sharedRideEditView.as_view(), name="user_shared_rides_edit"),
 
 ]
