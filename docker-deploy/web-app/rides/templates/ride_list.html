@@ -1,18 +1,31 @@
-{% extends 'base.html' %} {% load static %} {% load relative_url %}
+{% extends 'base.html' %}
+{% load static %}
 
-<!--{% block js_block %}-->
+{% block js_block %}
+<script
+  defer
+  type="application/javascript"
+  src="{% static '/js/confirm_ride.js' %}"
+></script>
+
 <script
   defer
   type="application/javascript"
   src="{% static '/js/user_ride_list.js' %}"
 ></script>
-<!--{% endblock js_block %}-->
+{% endblock js_block %}
 
 {% block content %}
+
+
 <form method="GET">
   {{filtered_rides.form.as_p}}
   <input type="submit" value="search" />
+  {% if driver_view %}
+  <button><a href="{%  url 'confirmed_ride_list' %}">Clear</a></button>
+  {% else %}
   <button><a href="{%  url 'user_ride_list' %}">Clear</a></button>
+  {% endif %}
 </form>
 
 <!---->
@@ -63,7 +76,7 @@
       <td>{{ride.status}}</td>
       <td>
         {% if driver_view %}
-        <button type="button" class="btn btn-outline-primary btn-sm">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="confirmRide({{ride.id}})">
           Confirm
         </button>
         {% else %}
@@ -171,77 +184,6 @@
   </div>
 </div>
 
-Page {{ rides_page_obj.number }} of {{ rides_page_obj.paginator.num_pages }}.
-<ul class="pagination">
-  <li class="page-item">
-    <a
-      class="page-link"
-      href="{% relative_url 1 'page' request.GET.urlencode %}"
-    >
-      &laquo; First</a
-    >
-  </li>
-  <li
-    class="page-item {% if not rides_page_obj.has_previous %} disabled {% endif %}"
-  >
-    {% if rides_page_obj.has_previous %}
-    <a
-      class="page-link"
-      href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}"
-    >
-      Previous
-    </a>
-    {% else %}
-    <a class="page-link"> Previous </a>
-    {% endif %}
-  </li>
-  {% if rides_page_obj.has_previous %}
-  <li class="page-item">
-    <a
-      class="page-link"
-      href="{% relative_url rides_page_obj.previous_page_number 'page' request.GET.urlencode %}"
-    >
-      {{rides_page_obj.previous_page_number}}
-    </a>
-  </li>
-  {% endif %}
-  <li class="page-item active" aria-current="page">
-    <a class="page-link" href="#">{{ rides_page_obj.number }}</a>
-  </li>
-  {% if rides_page_obj.has_next %}
-  <li class="page-item">
-    <a
-      class="page-link"
-      href="{% relative_url rides_page_obj.next_page_number 'page' request.GET.urlencode %}"
-    >
-      {{rides_page_obj.next_page_number}}
-    </a>
-  </li>
-  {% endif %}
-  <li
-    class="page-item {% if not rides_page_obj.has_next %} disabled {% endif %}"
-  >
-    <a
-      class="page-link"
-      href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}"
-      >Next</a
-    >
-  </li>
-  <li class="page-item">
-    <a
-      class="page-link"
-      href="{% relative_url rides_page_obj.paginator.num_pages 'page' request.GET.urlencode %}"
-    >
-      Last &raquo;
-    </a>
-  </li>
-</ul>
-<script>
-//   window.onload = (e) => {
-//     let newToast = document.querySelector(".toast");
-//     let bsAlert = new bootstrap.Toast(newToast); //inizialize it
-//     console.log(bsAlert);
-//     bsAlert.show(); //show it
-//   };
-</script>
+{% include 'paginator.html' %}
+
 {% endblock content %}

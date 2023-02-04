@@ -24,7 +24,8 @@ SECRET_KEY = 'v@5z*0nu7d3%jc%*u+akuyvepc$3m4ra-$n11$ka4+3*c@oq57'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['web', '127.0.0.1', '0.0.0.0']
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8000']
 
 # Application definition
 
@@ -75,14 +76,24 @@ WSGI_APPLICATION = 'ride_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ride-app',
+#         'USER': 'postgres',
+#         'PASSWORD': 'ruqiulixia0220',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ride-app',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': 'wadqq',
-        'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 

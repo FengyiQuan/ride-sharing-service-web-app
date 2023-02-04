@@ -8,7 +8,6 @@ from .forms import RequestRideForm, RideShareRequestForm
 from django.contrib import messages
 from .models import Ride, SharedRequest
 from .filters import RideFilter
-import json
 from django.forms.models import model_to_dict
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 
@@ -111,7 +110,7 @@ def create_shared_request(request: HttpRequest):
         latest_arrive_date = form_data.get('latest_arrive_date')
         required_passengers_num = form_data.get('required_passengers_num')
 
-        new_shared_request = SharedRequest(sharer=sharer, ride_id=ride, earliest_arrive_date=earliest_arrive_date,
+        new_shared_request = SharedRequest(sharer=sharer, ride=ride, earliest_arrive_date=earliest_arrive_date,
                                            latest_arrive_date=latest_arrive_date,
                                            required_passengers_num=required_passengers_num)
         try:
@@ -128,3 +127,22 @@ def create_shared_request(request: HttpRequest):
     else:
         messages.error(request, form.errors)
         return JsonResponse({'error': form.errors}, status=400)
+
+
+@login_required
+@require_POST
+def complete_ride(request: HttpRequest, ride_id: int):
+    user = request.user
+    ride = Ride.objects.get(id=ride_id, owner=user)
+    if not ride:
+        messages.error(request, "ride does not exist or it does not belong to you. ")
+        return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
+    elif ride.status != Ride.RideStatus.CONFIRMED:
+        messages.error(request, "unable to complete a non-confirmed ride")
+        return JsonResponse({'error': "unable to complete a non-confirmed ride"}, status=400)
+    else:
+        ride.full_clean()
+        ride.status = Ride.RideStatus.COMPLETE
+        ride.save()
+        messages.success(request, "ride completed")
+        return JsonResponse({'success': "ride completed"}, status=200)

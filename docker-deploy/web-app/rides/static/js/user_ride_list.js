@@ -1,5 +1,4 @@
-const rideShareRequestForm = document.getElementById("ride-share-request-form");
-const ride_id = document.getElementById("ride_id");
+// const rideShareRequestForm = document.getElementById("ride-share-request-form");
 const earliest_arrive_date = document.getElementById("earliest_arrive_date");
 const latest_arrive_date = document.getElementById("latest_arrive_date");
 const required_passengers_num = document.getElementById(
@@ -10,27 +9,9 @@ const share_request_submit_button = document.getElementById(
   "share-request-submit-button"
 );
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-const csrftoken = getCookie("csrftoken");
-// console.log(csrftoken);
-
 share_request_submit_button.addEventListener("click", (e) => {
   e.preventDefault();
-  // const formData = new FormData(rideShareRequestForm);
+  const ride_id = document.getElementById("ride_id");
   const formData = new FormData();
   formData.append("ride_id", ride_id.value);
 
@@ -54,8 +35,6 @@ async function MakeShareRequest(formData) {
         body: formData,
       })
     ).json();
-    // console.log('asd')
-    // console.log(response);
 
     // if (response.ok) {
     console.log("Success:", response);
