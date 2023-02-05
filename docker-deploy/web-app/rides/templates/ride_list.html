@@ -2,188 +2,193 @@
 {% load static %}
 
 {% block js_block %}
-<script
-  defer
-  type="application/javascript"
-  src="{% static '/js/confirm_ride.js' %}"
-></script>
+    <script
+            defer
+            type="application/javascript"
+            src="{% static '/js/confirm_ride.js' %}"
+    ></script>
 
-<script
-  defer
-  type="application/javascript"
-  src="{% static '/js/user_ride_list.js' %}"
-></script>
+    <script
+            defer
+            type="application/javascript"
+            src="{% static '/js/user_ride_list.js' %}"
+    ></script>
 {% endblock js_block %}
 
 {% block content %}
 
 
-<form method="GET">
-  {{filtered_rides.form.as_p}}
-  <input type="submit" value="search" />
-  {% if driver_view %}
-  <button><a href="{%  url 'driver_ride_list' %}">Clear</a></button>
-  {% else %}
-  <button><a href="{%  url 'user_ride_list' %}">Clear</a></button>
-  {% endif %}
-</form>
-
-<!---->
-{% include 'alerts.html' %}
-<div class="toast-container position-static">
-<!-- <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <img src="..." class="rounded me-2" alt="...">
-        <strong class="me-auto">Bootstrap</strong>
-        <small class="text-muted">just now</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        See? Just like this.
-      </div>
-    </div> -->
-    <!-- 
-    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header">
-        <img src="..." class="rounded me-2" alt="...">
-        <strong class="me-auto">Bootstrap</strong>
-        <small class="text-muted">2 seconds ago</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        Heads up, toasts will stack automatically
-      </div>
-    </div> -->
-</div>
-<table class="table table-striped" id="ride-table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Destination</th>
-      <th scope="col">Arrive Time</th>
-      <th scope="col">#Current Passengers</th>
-      <th scope="col">Status</th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for ride in rides_page_obj %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ride.destination}}</td>
-      <td>{{ride.arrive_time}}</td>
-      <td>{{ride.current_passengers_num}}</td>
-      <td>{{ride.status}}</td>
-      <td>
+    <form method="GET">
+        {{ filtered_rides.form.as_p }}
+        <input type="submit" value="search"/>
         {% if driver_view %}
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="confirmRide({{ride.id}})">
-          Confirm
-        </button>
+            <button><a href="{% url 'driver_ride_list' %}">Clear</a></button>
         {% else %}
-        <button
-          type="button"
-          class="btn btn-outline-primary btn-sm"
-          data-bs-toggle="modal"
-          data-bs-target="#rideShareRequestModal"
-          onclick="setRideId({{ride.id}})"
-        >
-          Join
-        </button>
+            <button><a href="{% url 'user_ride_list' %}">Clear</a></button>
         {% endif %}
-      </td>
-    </tr>
-    {% empty %} Sorry, no rides information in this list. {% endfor %}
-  </tbody>
-</table>
-<!-- Modal -->
-<div
-  class="modal fade"
-  id="rideShareRequestModal"
-  tabindex="-1"
-  aria-labelledby="rideShareRequestModal"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">
-          Ride Share Request
-        </h1>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form
-          action="/create_shared_request/"
-          method="POST"
-          id="ride-share-request-form"
-        >
-          {% csrf_token %}
-          <div class="visually-hidden">
-            <label for="ride_id" class="col-form-label">Ride id:</label>
-            <input
-              type="number"
-              class="form-control"
-              id="ride_id"
-              name="ride_id"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="earliest_arrive_date" class="col-form-label"
-              >Arrive time from:</label
-            >
-            <input
-              type="datetime-local"
-              class="form-control"
-              id="earliest_arrive_date"
-              name="earliest_arrive_date"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="latest_arrive_date" class="col-form-label"
-              >Arrive time to:</label
-            >
-            <input
-              type="datetime-local"
-              class="form-control"
-              id="latest_arrive_date"
-              name="latest_arrive_date"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="required_passengers_num" class="col-form-label"
-              >#Seats needed:</label
-            >
-            <input
-              type="number"
-              class="form-control"
-              id="required_passengers_num"
-              name="required_passengers_num"
-            />
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          id="share-request-submit-button"
-          data-bs-dismiss="modal"
-        >
-          Make Request
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+    </form>
 
-{% include 'paginator.html' %}
+    <!---->
+    {% include 'alerts.html' %}
+    <div class="toast-container position-static">
+        <!-- <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="toast-header">
+                <img src="..." class="rounded me-2" alt="...">
+                <strong class="me-auto">Bootstrap</strong>
+                <small class="text-muted">just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+              <div class="toast-body">
+                See? Just like this.
+              </div>
+            </div> -->
+        <!--
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="...">
+            <strong class="me-auto">Bootstrap</strong>
+            <small class="text-muted">2 seconds ago</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            Heads up, toasts will stack automatically
+          </div>
+        </div> -->
+    </div>
+    <table class="table table-striped" id="ride-table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Arrive Time</th>
+            <th scope="col">#Current Passengers</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ride in rides_page_obj %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ ride.destination }}</td>
+                <td>{{ ride.arrive_time }}</td>
+                <td>{{ ride.current_passengers_num }}</td>
+                <td>{{ ride.status }}</td>
+                <td>
+                    {% if driver_view %}
+                        <button type="button" id="confirm-button-{{ ride.id }}" class="btn btn-outline-primary btn-sm"
+                                onclick="confirmRide({{ ride.id }})">
+                            Confirm
+                        </button>
+                        <button class="btn btn-primary d-none" id="spinner-button-{{ ride.id }}" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="sr-only">Processing...</span>
+                        </button>
+                    {% else %}
+                        <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rideShareRequestModal"
+                                onclick="setRideId({{ ride.id }})"
+                        >
+                            Join
+                        </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %} Sorry, no rides information in this list. {% endfor %}
+        </tbody>
+    </table>
+    <!-- Modal -->
+    <div
+            class="modal fade"
+            id="rideShareRequestModal"
+            tabindex="-1"
+            aria-labelledby="rideShareRequestModal"
+            aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                        Ride Share Request
+                    </h1>
+                    <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form
+                            action="/create_shared_request/"
+                            method="POST"
+                            id="ride-share-request-form"
+                    >
+                        {% csrf_token %}
+                        <div class="visually-hidden">
+                            <label for="ride_id" class="col-form-label">Ride id:</label>
+                            <input
+                                    type="number"
+                                    class="form-control"
+                                    id="ride_id"
+                                    name="ride_id"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="earliest_arrive_date" class="col-form-label"
+                            >Arrive time from:</label
+                            >
+                            <input
+                                    type="datetime-local"
+                                    class="form-control"
+                                    id="earliest_arrive_date"
+                                    name="earliest_arrive_date"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="latest_arrive_date" class="col-form-label"
+                            >Arrive time to:</label
+                            >
+                            <input
+                                    type="datetime-local"
+                                    class="form-control"
+                                    id="latest_arrive_date"
+                                    name="latest_arrive_date"
+                            />
+                        </div>
+                        <div class="mb-3">
+                            <label for="required_passengers_num" class="col-form-label"
+                            >#Seats needed:</label
+                            >
+                            <input
+                                    type="number"
+                                    class="form-control"
+                                    id="required_passengers_num"
+                                    name="required_passengers_num"
+                            />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="share-request-submit-button"
+                            data-bs-dismiss="modal"
+                    >
+                        Make Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'paginator.html' %}
 
 {% endblock content %}

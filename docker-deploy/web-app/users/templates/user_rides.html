@@ -1,102 +1,103 @@
-
 {% extends 'base.html' %} {% load static %} {% load relative_url %}
 {% block content %}
-<table class="table table-striped" id="ride-table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Destination</th>
-      <th scope="col">Arrive Time</th>
-      <th scope="col">#Current Passengers</th>
-      <th scope="col">Status</th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for ride in owned_rides_page_obj %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ride.destination}}</td>
-      <td>{{ride.arrive_time}}</td>
-      <td>{{ride.current_passengers_num}}</td>
-      <td>{{ride.status}}</td>
-      <td>
-        {% if driver_view %}
-        <button type="button" class="btn btn-outline-primary btn-sm">
-          Confirm
-        </button>
-        {% else %}
-            <button
-      type="button"
-      class="btn btn-outline-primary btn-sm"
-      data-bs-toggle="modal"
-      data-bs-target="#rideShareRequestModal"
-{#      onclick="setRideId({{ride.id}})"#}
-    ><a href={% url 'user_owned_rides_detail' id=ride.id %}>
-      Details
-    </a>
-    </button>
+    <table class="table table-striped" id="ride-table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Arrive Time</th>
+            <th scope="col">#Current Passengers</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ride in owned_rides_page_obj %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ ride.destination }}</td>
+                <td>{{ ride.arrive_time }}</td>
+                <td>{{ ride.current_passengers_num }}</td>
+                <td>{{ ride.status }}</td>
+                <td>
+                    {% if driver_view %}
+                        <button type="button" class="btn btn-outline-primary btn-sm">
+                            Confirm
+                        </button>
+                    {% else %}
                         <button
-      type="button"
-      class="btn btn-outline-primary btn-sm"
-      data-bs-toggle="modal"
-      data-bs-target="#rideShareRequestModal"
-{#      onclick="setRideId({{ride.id}})"#}
-    ><a href={% url 'user_owned_rides_edit' id=ride.id %}>
-      Edit
-    </a>
-    </button>
+                                type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rideShareRequestModal"
+                                {#      onclick="setRideId({{ride.id}})"#}
+                        ><a href={% url 'user_owned_rides_detail' id=ride.id %}>
+                            Details
+                        </a>
+                        </button>
+                        <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rideShareRequestModal"
+                                {#      onclick="setRideId({{ride.id}})"#}
+                        ><a href={% url 'user_owned_rides_edit' id=ride.id %}>
+                            Edit
+                        </a>
+                        </button>
 
-        {% endif %}
-      </td>
-    </tr>
-    {% empty %} Sorry, no rides information in this list. {% endfor %}
-  </tbody>
-</table>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %} Sorry, no rides information in this list. {% endfor %}
+        </tbody>
+    </table>
 
-<table class="table table-striped" id="ride-table">
-<thead>
-<tr>
-  <th scope="col">#</th>
-  <th scope="col">Destination</th>
-  <th scope="col">Arrive Time</th>
-  <th scope="col">#Current Passengers</th>
-  <th scope="col">Status</th>
-  <th scope="col">Action</th>
-</tr>
-</thead>
-<tbody>
-{% for ride in shared_rides_page_obj %}
-<tr>
-  <th scope="row">{{ forloop.counter }}</th>
-  <td>{{ride.destination}}</td>
-  <td>{{ride.arrive_time}}</td>
-  <td>{{ride.current_passengers_num}}</td>
-  <td>{{ride.status}}</td>
-  <td>
-    <button
-      type="button"
-      class="btn btn-outline-primary btn-sm"
-      data-bs-toggle="modal"
-      data-bs-target="#rideShareRequestModal"
-{#      onclick="setRideId({{ride.id}})"#}
-    ><a href={% url 'user_shared_rides_detail' id=ride.id %}>
-      Details
-    </a>
-    </button>
-      <button
-      type="button"
-      class="btn btn-outline-primary btn-sm"
-      data-bs-toggle="modal"
-      data-bs-target="#rideShareRequestModal"
-    ><a href={% url 'user_shared_rides_edit' id=ride.id %}>
-      Edit
-    </a>
-    </button>
-  </td>
-</tr>
-{% empty %} Sorry, no rides information in this list. {% endfor %}
-</tbody>
-</table>
+    <table class="table table-striped" id="ride-table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Arrive Time</th>
+            <th scope="col">#Current Passengers</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ride in shared_rides_page_obj %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ ride.destination }}</td>
+                <td>{{ ride.arrive_time }}</td>
+                <td>{{ ride.current_passengers_num }}</td>
+                <td>{{ ride.status }}</td>
+                <td>
+                    <button
+                            type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rideShareRequestModal"
+                            {#      onclick="setRideId({{ride.id}})"#}
+                    ><a href={% url 'user_shared_rides_detail' id=ride.id %}>
+                        Details
+                    </a>
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rideShareRequestModal"
+
+                    ><a href={% url 'user_shared_rides_edit' id=ride.id %}>
+
+                        Edit
+                    </a>
+                    </button>
+                </td>
+            </tr>
+            {% empty %} Sorry, no rides information in this list. {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock content %}

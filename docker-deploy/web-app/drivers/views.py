@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from rides.filters import RideFilter
-from rides.models import Ride
+from rides.models import Ride, SharedRequest
 from .models import Driver
 from users.models import User
 from django.core.paginator import Paginator
@@ -32,12 +32,12 @@ def ride_list(request: HttpRequest):
     max_capacity = driver.max_capacity
     special_info = driver.special_info
     # print(special_info)
-    filtered_rides = RideFilter(request.GET, queryset=Ride.objects.filter(status=Ride.RideStatus.OPEN,
-                                                                          vehicle_type__in=["", vehicle_type],
-                                                                          current_passengers_num__lte=max_capacity,
-                                                                          special_request__in=["",
-                                                                                               special_info]).order_by(
-        'created_at'))
+    queryset = Ride.objects.filter(status=Ride.RideStatus.OPEN,
+                                   vehicle_type__in=["", vehicle_type],
+                                   current_passengers_num__lte=max_capacity,
+                                   special_request__in=["", special_info]).exclude(owner=request.user).order_by(
+        'created_at')
+    filtered_rides = RideFilter(request.GET, queryset=queryset)
 
     context['filtered_rides'] = filtered_rides
     paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
@@ -72,7 +72,10 @@ def confirmed_ride_list(request: HttpRequest):
 @require_POST
 def confirm_ride(request: HttpRequest, ride_id: int):
     ride = Ride.objects.get(id=ride_id)
-
+    try:
+        shareRequest = SharedRequest.objects.get(ride=ride)
+    except SharedRequest.DoesNotExist:
+        shareRequest = None
     if ride.status != Ride.RideStatus.OPEN:
         messages.error(request, 'cannot confirm ride that is not open.')
         return JsonResponse({'error': 'cannot confirm ride that is not open.'}, status=400)
@@ -86,19 +89,20 @@ def confirm_ride(request: HttpRequest, ride_id: int):
         send_mail(
             'Here is the message',
             'As a ride-owner, your ride has been comfirmed',
-            'no-reply@ride-app.com',
-            [ride.owner.email],
+            'ride_share_app@outlook.com',
+            [request.user.email],
             fail_silently=False,
         )
-        sharer = User.objects.filter(id == ride.sharer.all().values_list('id', flat=True))
-        if sharer:
-            send_mail(
-                'Here is the message',
-                'As a ride-sharer, your ride has been confirmed',
-                'no-reply@ride-app.com',
-                [sharer.email],
-                fail_silently=False,
-            )
+        if shareRequest is not None:
+            sharer = User.objects.filter(id == shareRequest.sharer.all().values_list('id', flat=True))
+            if sharer:
+                send_mail(
+                    'Here is the message',
+                    'As a ride-sharer, your ride has been confirmed',
+                    'ride_share_app@outlook.com',
+                    [sharer.email],
+                    fail_silently=False,
+                )
         messages.success(request, f'ride for user {ride.owner} confirmed successful. ')
         return JsonResponse({'ride': model_to_dict(ride)}, safe=False)
     except ValidationError as e:

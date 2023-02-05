@@ -233,15 +233,18 @@ class ownedRideEditView(generic.UpdateView):
 
 
 class sharedRideEditView(generic.UpdateView):
+
     model = SharedRequest
     fields = ['earliest_arrive_date', 'latest_arrive_date',
               'required_passengers_num']
+
     template_name = 'shared_ride_edit.html'
     success_url = reverse_lazy('user_rides')
 
     def get_object(self, *args, **kwargs):
         # shared_request_id = Ride.objects.get(id=self.kwargs.get('id'))
         sharedRequest = SharedRequest.objects.get(id=self.kwargs.get('id'))
+
         # print(sharedRequest)
         return sharedRequest
 
@@ -274,3 +277,4 @@ class sharedRideEditView(generic.UpdateView):
                 non_field_errors = e.message_dict[NON_FIELD_ERRORS]
                 messages.error(request, non_field_errors)
                 return HttpResponseRedirect(self.get_success_url())
+
