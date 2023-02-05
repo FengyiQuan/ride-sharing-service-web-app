@@ -32,12 +32,12 @@ def ride_list(request: HttpRequest):
     max_capacity = driver.max_capacity
     special_info = driver.special_info
     # print(special_info)
-    filtered_rides = RideFilter(request.GET, queryset=Ride.objects.filter(status=Ride.RideStatus.OPEN,
-                                                                          vehicle_type__in=["", vehicle_type],
-                                                                          current_passengers_num__lte=max_capacity,
-                                                                          special_request__in=["",
-                                                                                               special_info]).order_by(
-        'created_at'))
+    queryset = Ride.objects.filter(status=Ride.RideStatus.OPEN,
+                                   vehicle_type__in=["", vehicle_type],
+                                   current_passengers_num__lte=max_capacity,
+                                   special_request__in=["", special_info]).exclude(owner=request.user).order_by(
+        'created_at')
+    filtered_rides = RideFilter(request.GET, queryset=queryset)
 
     context['filtered_rides'] = filtered_rides
     paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
@@ -64,7 +64,7 @@ def confirmed_ride_list(request: HttpRequest):
     rides_page_obj = paginated_filtered_rides.get_page(page_number)
     context['rides_page_obj'] = rides_page_obj
     context['driver_view'] = True
-    return render(request, 'ride_list.html', context)
+    return render(request, 'driver-ride-list.html', context)
 
 
 @login_required
@@ -90,10 +90,10 @@ def confirm_ride(request: HttpRequest, ride_id: int):
             'Here is the message',
             'As a ride-owner, your ride has been comfirmed',
             'ride_share_app@outlook.com',
-            ['yxs0327@gmail.com'],
+            [request.user.email],
             fail_silently=False,
         )
-        if shareRequest != None:
+        if shareRequest is not None:
             sharer = User.objects.filter(id == shareRequest.sharer.all().values_list('id', flat=True))
             if sharer:
                 send_mail(
@@ -116,7 +116,8 @@ def confirm_ride(request: HttpRequest, ride_id: int):
 @require_POST
 def complete_ride(request: HttpRequest, ride_id: int):
     user = request.user
-    ride = Ride.objects.get(id=ride_id, driver=user)
+    driver = Driver.objects.get(user=user)
+    ride = Ride.objects.get(id=ride_id, driver=driver)
     if not ride:
         messages.error(request, "ride does not exist or it does not belong to you as a driver. ")
         return JsonResponse({'error': "ride does not exist or it does not belong to you as a driver. "}, status=400)
@@ -128,7 +129,7 @@ def complete_ride(request: HttpRequest, ride_id: int):
         try:
             ride.full_clean()
             ride.save()
-            messages.success(request, f'ride for user {ride.owner} complete successful. ')
+            messages.success(request, f'ride for user {ride.owner} to {ride.destination} complete successful. ')
             return JsonResponse({'ride': model_to_dict(ride)}, safe=False)
         except ValidationError as e:
             non_field_errors = e.message_dict[NON_FIELD_ERRORS]
