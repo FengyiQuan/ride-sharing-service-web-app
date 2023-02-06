@@ -75,7 +75,11 @@
                 <td>{{ ride.current_passengers_num }}</td>
                 <td>{{ ride.status }}</td>
                 <td>
-
+                        <button type="button" class="btn btn-outline-primary btn-sm">
+                        <a href={% url 'confirmed_ride_detail' ride_id=ride.id %}>
+                        Detail
+                        </a>
+                    </button>
                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="completeRide({{ ride.id }})">
                         Complete
                     </button>

@@ -135,3 +135,12 @@ def complete_ride(request: HttpRequest, ride_id: int):
             non_field_errors = e.message_dict[NON_FIELD_ERRORS]
             messages.error(request, non_field_errors)
             return JsonResponse({'error': non_field_errors}, status=400)
+
+@login_required
+@user_passes_test(is_driver)
+@require_GET
+def confirmed_ride_detail(request: HttpRequest, ride_id):
+    context = {}
+    filtered_rides_obj = Ride.objects.get(id=ride_id)
+    context['ride_obj'] = filtered_rides_obj
+    return render(request, 'driver_confirmed_ride_detail.html', context)

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+    <h2>Ride Details</h2>
+    <p>Id: {{ride_obj.id}} </p>
+    <p>Arrive Time: {{ ride_obj.arrive_time }} </p>
+    <p>Current Passengers Number:{{ ride_obj.current_passengers_num }} </p>
+    <p>Destination: {{ ride_obj.destination }}</p>
+    <p>Special Request: {{ ride_obj.special_request }}</p>
+
+
+{% endblock content %}
