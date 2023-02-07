@@ -1,0 +1,18 @@
+01/26 The schema of the tables might be not enough to deal with a more real situation.
+
+01/28 Password is hashed and handle by Django authentication system, which handles user accounts, groups, permissions and cookie-based user sessions. Session is used to store login user information to avoid request user sensitive information every time to prevent middle attack. Further password validation can perform in order to have better password strength, such as password strength checking, throttling of login attempts, authentication against third-parties (OAuth, for example).
+
+01/28 The driver can be in the same car as customers, or in another word, it means that the driver can also find open rides created by themselves.
+
+01/28 The user can edit their rides' details by the fields we allowed them to edit. In this way, it can prevent some unexpected errors.
+
+02/01 All API implementations ensure that authentication is checked prior to processing any requests. This is done to verify the identity of the user or client making the API call and ensure that they have the necessary permissions to access the requested resources.
+
+02/03 To prevent multiple driver confirm the same request at the same time, atomic state update is done by checking the request state is set to the specific state. Otherwise, state change will fail.
+
+02/04 When designing URLs for API endpoint, it is important to minimize the exposure of sensitive information in the URL string, such as username, destination. This information should instead be placed in the body section of the API request. Exposing sensitive information in the URL can pose security risks as it can be easily intercepted or seen in logs, cache, and history. All sensitive information place in the body section, it is encrypted and protected from unauthorized access.
+
+02/05 The memory for our app is limited, which means that it is possible that our app would fail if it is out of memory.
+
+02/07 The GitHub repo have some sensitive information leaking problems, but for easily testing for graders the raw sensitive information is in the public repo.
+
