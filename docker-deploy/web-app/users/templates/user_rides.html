@@ -1,5 +1,7 @@
 {% extends 'base.html' %} {% load static %} {% load relative_url %}
 {% block content %}
+    {% include 'alerts.html' %}
+    <h3>Your owned rides:</h3>
     <table class="table table-striped" id="ride-table">
         <thead>
         <tr>
@@ -35,16 +37,18 @@
                             Details
                         </a>
                         </button>
-                        <button
-                                type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#rideShareRequestModal"
-                                {#      onclick="setRideId({{ride.id}})"#}
-                        ><a href={% url 'user_owned_rides_edit' id=ride.id %}>
-                            Edit
-                        </a>
-                        </button>
+                        {% if ride.status == "OPEN" %}
+                            <button
+                                    type="button"
+                                    class="btn btn-outline-primary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rideShareRequestModal"
+                                    {#      onclick="setRideId({{ride.id}})"#}
+                            ><a href={% url 'user_owned_rides_edit' id=ride.id %}>
+                                Edit
+                            </a>
+                            </button>
+                        {% endif %}
 
                     {% endif %}
                 </td>
@@ -64,6 +68,7 @@
             <th scope="col">Action</th>
         </tr>
         </thead>
+        <h3>Your shared rides:</h3>
         <tbody>
         {% for ride in shared_rides_page_obj %}
             <tr>
@@ -83,6 +88,7 @@
                         Details
                     </a>
                     </button>
+                     {% if ride.status == "OPEN" %}
                     <button
                             type="button"
                             class="btn btn-outline-primary btn-sm"
@@ -93,6 +99,7 @@
                         Edit
                     </a>
                     </button>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %} Sorry, no rides information in this list. {% endfor %}

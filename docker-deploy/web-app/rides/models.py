@@ -33,10 +33,14 @@ class Ride(models.Model):
         return self.destination
 
     def clean(self):
-        share_requests = SharedRequest.objects.filter(sharer=self.owner)
-        for request in share_requests:
-            if self.arrive_time < request.earliest_arrive_date or self.arrive_time > request.latest_arrive_date:
-                raise ValidationError("arrive_time not match other request's schedule")
+        share_requests = SharedRequest.objects.filter(ride=self)
+        if share_requests.count() > 0:
+            for request in share_requests:
+                if self.arrive_time < request.earliest_arrive_date or self.arrive_time > request.latest_arrive_date:
+                    raise ValidationError("arrive_time not match other request's schedule")
+        if share_requests.count() > 0 and self.can_be_shared is False:
+            raise ValidationError("this ride already shared with other people, can not be changed to not shared.")
+
         # TODO: driver info match validator
         if self.driver is None:
             return
@@ -69,6 +73,9 @@ class SharedRequest(models.Model):
         return f"{self.required_passengers_num} shared {self.ride}"
 
     def clean(self):
+        print(self.required_passengers_num)
+        if int(self.required_passengers_num) <= 0:
+            raise ValidationError('required_passengers_num should be positive')
         if self.earliest_arrive_date >= self.latest_arrive_date:
             raise ValidationError('from time should be before to time')
         # ride = Ride.objects.get(id=self.ride_id)

@@ -64,6 +64,7 @@ def confirmed_ride_list(request: HttpRequest):
     rides_page_obj = paginated_filtered_rides.get_page(page_number)
     context['rides_page_obj'] = rides_page_obj
     context['driver_view'] = True
+    messages.success(request, f'ride for user {driver} confirmed successful. ')
     return render(request, 'driver-ride-list.html', context)
 
 

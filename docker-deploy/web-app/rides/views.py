@@ -76,15 +76,17 @@ def show_all_ride_list(request: HttpRequest):
     context['rides_page_obj'] = rides_page_obj
     return render(request, 'ride_list.html', context)
 
-
+# possible ride that use can join
 @require_GET
 @login_required
 def user_ride_list(request: HttpRequest):
     context = {}
     user = request.user
     shared_ride = SharedRequest.objects.filter(sharer=user)
-    queryset = Ride.objects.filter(can_be_shared=True, status=Ride.RideStatus.OPEN).exclude(
-        owner=user, id__in=[r.id for r in shared_ride]).order_by('arrive_time')
+    # print([r.ride.id for r in shared_ride])
+    # print([i.id for i in Ride.objects.filter(can_be_shared=True, status=Ride.RideStatus.OPEN).exclude(owner=request.user)])
+    queryset = Ride.objects.filter(can_be_shared=True, status=Ride.RideStatus.OPEN).exclude(owner=request.user).exclude(
+        id__in=[r.ride.id for r in shared_ride]).order_by('arrive_time')
     filtered_rides = RideFilter(request.GET, queryset=queryset)
     context['filtered_rides'] = filtered_rides
     paginated_filtered_rides = Paginator(filtered_rides.qs, entry_number_per_page)
@@ -127,7 +129,6 @@ def create_shared_request(request: HttpRequest):
     else:
         messages.error(request, form.errors)
         return JsonResponse({'error': form.errors}, status=400)
-
 
 # @login_required
 # @require_POST

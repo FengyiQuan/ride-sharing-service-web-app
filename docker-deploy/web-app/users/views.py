@@ -252,7 +252,12 @@ class sharedRideEditView(generic.UpdateView):
         self.object = self.get_object()
         temp = self.get_object()
         shared_id = self.kwargs.get('id')
-        ride = Ride.objects.get(id=shared_id, can_be_shared=True, status=Ride.RideStatus.OPEN)
+        # print(shared_id)
+        shared_ride = SharedRequest.objects.get(id=shared_id)
+        # ride = Ride.objects.get(id=shared_id)
+        # print(shared_ride)
+
+        ride = Ride.objects.get(id=shared_ride.ride.id, can_be_shared=True, status=Ride.RideStatus.OPEN)
         if not ride:
             messages.error(request, f'Hi {request.user.get_short_name()}, this ride is not available for editing. ')
             return HttpResponseRedirect(self.get_success_url())
@@ -269,11 +274,18 @@ class sharedRideEditView(generic.UpdateView):
                     # print('form.cleaned_data[required_passengers_num]', form.cleaned_data['required_passengers_num'])
                     # print(ride.current_passengers_num)
                     ride.save()
+                    self.object.save()
                     super().post(request, *args, **kwargs)
 
                     messages.success(request, 'share request create successful')
                     return HttpResponseRedirect(self.get_success_url())
+                else:
+                    # print('form is not valid')
+                    messages.error(request, 'form is not valid')
+                    return HttpResponseRedirect(self.get_success_url())
             except ValidationError as e:
+                # print()
+                # print(e.message_dict[NON_FIELD_ERRORS])
                 non_field_errors = e.message_dict[NON_FIELD_ERRORS]
                 messages.error(request, non_field_errors)
                 return HttpResponseRedirect(self.get_success_url())
