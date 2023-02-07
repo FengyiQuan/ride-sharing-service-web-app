@@ -23,6 +23,20 @@ Exposing sensitive information in the URL can pose security risks as it can be e
 cache, and history. All sensitive information place in the body section, it is encrypted and protected from unauthorized 
 access. 
 
+5. All front end design have some sort of indication that user's permission. For example, when submit confirm request, webpage will show spinner to indicate that request is processing and prevent multiple form submit. 
+
+6. Back-end also prevent concurrent driver confirmation, by checking if a ride is confirmed by some driver. Thus, prevent ride is confirmed by multiple driver.
+
+7. Editing ride information needed to  make sure that new informatio not complicated with other riders. If conflit, an error message will pop up and prevent updating. 
+
+8. Ride and shared request id is exposed to the url `user_owned_rides_detail/<int:id>/`, `user_shared_rides_detail/<int:id>`, `user_owned_rides_edit/<int:id>/`, 'user_shared_rides_edit/<int:id>/', anyone know the id can see the info. Attackers may steal the id and edit info that not belongs to him. However, since id is random genereated, it is hard for attacher to knwo which ride belongs to who. 
+
+9. Filter and pagniation are implemented to reduct the workload of the server to hanlde to many tuples in the request and not show on the page properly.
+
+10. **TODO** Users can post rides arbitrarily. For example, the ride of the request ride can be earlier thanbe the current time;
+the requested passenger number can be larger than the maximum number of passengers that their requested vehicle can hold; A
+driver can confirm a ride which is earlier than the current time, etc. These kind od rides make nonsense.
+
 ## UserRole
 
 ### Ride Owner
