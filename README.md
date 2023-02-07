@@ -51,7 +51,7 @@ Ride Sharing Service
 
 - 02/07 TODO Users can post rides arbitrarily. For example, the ride of the request ride can be earlier thanbe the
   current time; the requested passenger number can be larger than the maximum number of passengers that their requested
-  vehicle can hold; A driver can confirm a ride which is earlier than the current time, etc. These kind od rides make
+  vehicle can hold; A driver can confirm a ride which is earlier than the current time, etc. These kind of rides make
   nonsense.
 
 ## UserRole
