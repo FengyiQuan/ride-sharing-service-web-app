@@ -2,7 +2,7 @@
 
 Ride Sharing Service
 
-## Danger log
+## Takeaway of Danger log
 
 1. Password is hashed and handle by [Django authentication system](https://docs.djangoproject.com/en/3.2/topics/auth/),
 which handles user accounts, groups, permissions and cookie-based user sessions. Session is used to store login user
