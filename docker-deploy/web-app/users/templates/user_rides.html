@@ -1,5 +1,6 @@
 {% extends 'base.html' %} {% load static %} {% load relative_url %}
 {% block content %}
+    <h2>User's Owned Ride</h2>
     <table class="table table-striped" id="ride-table">
         <thead>
         <tr>
@@ -35,6 +36,7 @@
                             Details
                         </a>
                         </button>
+                        {% if ride.status == 'OPEN' %}
                         <button
                                 type="button"
                                 class="btn btn-outline-primary btn-sm"
@@ -45,14 +47,14 @@
                             Edit
                         </a>
                         </button>
-
+                        {% endif %}
                     {% endif %}
                 </td>
             </tr>
             {% empty %} Sorry, no rides information in this list. {% endfor %}
         </tbody>
     </table>
-
+    <h2>User's Shared Ride</h2>
     <table class="table table-striped" id="ride-table">
         <thead>
         <tr>
@@ -83,6 +85,7 @@
                         Details
                     </a>
                     </button>
+                    {% if ride.status == 'OPEN' %}
                     <button
                             type="button"
                             class="btn btn-outline-primary btn-sm"
@@ -93,6 +96,7 @@
                         Edit
                     </a>
                     </button>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %} Sorry, no rides information in this list. {% endfor %}

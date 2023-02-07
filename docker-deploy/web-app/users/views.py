@@ -205,7 +205,13 @@ def userDetailsOwnedRidesView(request: HttpRequest, id):
     context = {}
     # user = request.user
     owned_ride = Ride.objects.get(id=id)
+    # is owned_ride.driver null or not
+    if owned_ride.driver is None:
+        driver_obj = None
+    else:
+        driver_obj = Driver.objects.get(user=owned_ride.driver)
     context['ride_obj'] = owned_ride
+    context['driver_obj'] = driver_obj
     return render(request, 'owned_one_ride.html', context)
 
 
@@ -216,7 +222,13 @@ def userDetailsSharedRidesView(request: HttpRequest, id):
     # user = request.user
     # todo: fix query
     owned_ride = SharedRequest.objects.get(id=id)
-    context['ride_obj'] = owned_ride
+    if owned_ride.ride.driver is None:
+        driver_obj = None
+    else:
+        driver_obj = Driver.objects.get(user=owned_ride.ride.driver)
+    context['ride_obj'] = owned_ride.ride
+    context['driver_obj'] = driver_obj
+
     return render(request, 'owned_one_ride.html', context)
 
 
